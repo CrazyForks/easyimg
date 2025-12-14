@@ -1,0 +1,429 @@
+<template>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- 公告组件 - 顶部横幅形式显示在上传区域上方 -->
+    <Announcement />
+
+    <!-- 上传区域 -->
+    <section class="mb-8">
+      <UploadArea />
+    </section>
+
+    <!-- 批量操作栏 -->
+    <div
+      v-if="authStore.isAuthenticated && imagesStore.hasSelection"
+      class="sticky top-20 z-30 mb-4 p-4 card flex items-center justify-between"
+    >
+      <div class="flex items-center gap-4">
+        <button
+          @click="imagesStore.toggleSelectAll"
+          class="btn-secondary text-sm"
+        >
+          {{ imagesStore.isAllSelected ? '取消全选' : '全选' }}
+        </button>
+        <span class="text-sm text-gray-600 dark:text-gray-400">
+          已选择 {{ imagesStore.selectedIds.length }} 张图片
+        </span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          @click="imagesStore.clearSelection"
+          class="btn-secondary text-sm"
+        >
+          取消选择
+        </button>
+        <button
+          @click="showBatchDeleteModal = true"
+          class="btn-danger text-sm"
+        >
+          批量删除
+        </button>
+      </div>
+    </div>
+
+    <!-- 图片列表 -->
+    <section>
+      <!-- 加载状态 -->
+      <div v-if="imagesStore.loading && imagesStore.images.length === 0" class="flex justify-center py-12">
+        <Loading size="lg" />
+      </div>
+
+      <!-- 空状态 -->
+      <div
+        v-else-if="imagesStore.images.length === 0"
+        class="text-center py-16"
+      >
+        <Icon name="heroicons:photo" class="w-24 h-24 mx-auto text-gray-300 dark:text-gray-600 mb-4" />
+        <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">暂无图片</h3>
+        <p class="text-gray-500 dark:text-gray-400">上传你的第一张图片吧</p>
+      </div>
+
+      <!-- 瀑布流图片列表 - 使用多列 Flexbox 布局避免加载新图片时位置变化 -->
+      <div v-else class="masonry-container">
+        <div
+          v-for="(column, columnIndex) in imageColumns"
+          :key="columnIndex"
+          class="masonry-column"
+        >
+          <div
+            v-for="(image, imageIndex) in column"
+            :key="image.id"
+            class="masonry-item"
+          >
+            <ImageCard
+              :image="image"
+              :selected="imagesStore.selectedIds.includes(image.id)"
+              :selectable="authStore.isAuthenticated"
+              @click="openViewer(image)"
+              @select="imagesStore.toggleSelect(image.id)"
+              @delete="confirmDelete(image)"
+              @copy="handleCopy"
+              @setAsBackground="handleSetAsBackground"
+              @setAsLogo="handleSetAsLogo"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- 加载更多 -->
+      <div
+        v-if="imagesStore.hasMore"
+        ref="loadMoreTrigger"
+        class="flex justify-center py-8"
+      >
+        <Loading v-if="imagesStore.loading" />
+        <button
+          v-else
+          @click="imagesStore.loadMore"
+          class="btn-secondary"
+        >
+          加载更多
+        </button>
+      </div>
+    </section>
+
+    <!-- 图片查看器 -->
+    <ImageViewer
+      :visible="viewerVisible"
+      :src="viewerImage?.url || ''"
+      :alt="viewerImage?.filename || ''"
+      :info="viewerImageInfo"
+      @close="closeViewer"
+    />
+
+    <!-- 删除确认弹窗 -->
+    <Modal
+      :visible="showDeleteModal"
+      title="确认删除"
+      confirm-text="删除"
+      confirm-type="danger"
+      @close="showDeleteModal = false"
+      @confirm="handleDelete"
+    >
+      <p class="text-gray-600 dark:text-gray-400">
+        确定要删除这张图片吗？删除后可在设置页面进行硬删除。
+      </p>
+    </Modal>
+
+    <!-- 批量删除确认弹窗 -->
+    <Modal
+      :visible="showBatchDeleteModal"
+      title="确认批量删除"
+      confirm-text="删除"
+      confirm-type="danger"
+      @close="showBatchDeleteModal = false"
+      @confirm="handleBatchDelete"
+    >
+      <p class="text-gray-600 dark:text-gray-400">
+        确定要删除选中的 {{ imagesStore.selectedIds.length }} 张图片吗？
+      </p>
+    </Modal>
+
+    <!-- 返回顶部按钮 -->
+    <Transition
+      enter-active-class="transition-all duration-300 ease-out"
+      enter-from-class="opacity-0 translate-y-4 scale-95"
+      enter-to-class="opacity-100 translate-y-0 scale-100"
+      leave-active-class="transition-all duration-200 ease-in"
+      leave-from-class="opacity-100 translate-y-0 scale-100"
+      leave-to-class="opacity-0 translate-y-4 scale-95"
+    >
+      <button
+        v-show="showBackToTop"
+        @click="scrollToTop"
+        class="fixed bottom-6 right-6 z-50 w-12 h-12 flex items-center justify-center bg-primary-500 hover:bg-primary-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+        aria-label="返回顶部"
+        title="返回顶部"
+      >
+        <Icon name="heroicons:arrow-up" class="w-6 h-6 flex-shrink-0" />
+      </button>
+    </Transition>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useAuthStore } from '~/stores/auth'
+import { useImagesStore } from '~/stores/images'
+import { useSettingsStore } from '~/stores/settings'
+import { useToastStore } from '~/stores/toast'
+
+const authStore = useAuthStore()
+const imagesStore = useImagesStore()
+const settingsStore = useSettingsStore()
+const toastStore = useToastStore()
+
+// 响应式列数
+const columnCount = ref(2)
+
+// 更新列数
+function updateColumnCount() {
+  const width = window.innerWidth
+  if (width >= 1280) {
+    columnCount.value = 5
+  } else if (width >= 1024) {
+    columnCount.value = 4
+  } else if (width >= 640) {
+    columnCount.value = 3
+  } else {
+    columnCount.value = 2
+  }
+}
+
+// 将图片分配到各列（按顺序轮流分配，保持稳定性）
+const imageColumns = computed(() => {
+  const columns = Array.from({ length: columnCount.value }, () => [])
+
+  imagesStore.images.forEach((image, index) => {
+    // 按顺序轮流分配到各列，这样新图片只会追加到列末尾
+    const columnIndex = index % columnCount.value
+    columns[columnIndex].push(image)
+  })
+
+  return columns
+})
+
+// 图片查看器
+const viewerVisible = ref(false)
+const viewerImage = ref(null)
+
+const viewerImageInfo = computed(() => {
+  if (!viewerImage.value) return ''
+  const { filename, width, height, size } = viewerImage.value
+  return `${filename} · ${width}×${height} · ${formatFileSize(size)}`
+})
+
+// 删除相关
+const showDeleteModal = ref(false)
+const showBatchDeleteModal = ref(false)
+const imageToDelete = ref(null)
+
+// 返回顶部
+const showBackToTop = ref(false)
+const scrollThreshold = 300 // 滚动超过300px显示按钮
+
+// 处理滚动事件
+function handleScroll() {
+  showBackToTop.value = window.scrollY > scrollThreshold
+}
+
+// 滚动到顶部
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  })
+}
+
+// 加载更多触发器
+const loadMoreTrigger = ref(null)
+let observer = null
+
+// 格式化文件大小
+function formatFileSize(bytes) {
+  if (!bytes) return '0 B'
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+}
+
+// 打开图片查看器
+function openViewer(image) {
+  viewerImage.value = image
+  viewerVisible.value = true
+}
+
+// 关闭图片查看器
+function closeViewer() {
+  viewerVisible.value = false
+  viewerImage.value = null
+}
+
+// 确认删除
+function confirmDelete(image) {
+  imageToDelete.value = image
+  showDeleteModal.value = true
+}
+
+// 执行删除
+async function handleDelete() {
+  if (!imageToDelete.value) return
+
+  const result = await imagesStore.deleteImage(imageToDelete.value.id)
+  if (result.success) {
+    toastStore.success('删除成功')
+  } else {
+    toastStore.error(result.message)
+  }
+
+  showDeleteModal.value = false
+  imageToDelete.value = null
+}
+
+// 执行批量删除
+async function handleBatchDelete() {
+  const result = await imagesStore.batchDelete()
+  if (result.success) {
+    toastStore.success(result.message)
+  } else {
+    toastStore.error(result.message)
+  }
+
+  showBatchDeleteModal.value = false
+}
+
+// 复制链接
+function handleCopy(type, url) {
+  let text = ''
+  switch (type) {
+    case 'direct':
+      text = url
+      break
+    case 'html':
+      text = `<img src="${url}" alt="image" />`
+      break
+    case 'markdown':
+      text = `![image](${url})`
+      break
+    case 'bbcode':
+      text = `[img]${url}[/img]`
+      break
+  }
+
+  navigator.clipboard.writeText(text).then(() => {
+    toastStore.success('已复制到剪贴板')
+  }).catch(() => {
+    toastStore.error('复制失败')
+  })
+}
+
+// 设置为全局背景图
+async function handleSetAsBackground(url) {
+  const result = await settingsStore.saveAppSettings({
+    appName: settingsStore.appSettings.appName,
+    appLogo: settingsStore.appSettings.appLogo,
+    backgroundUrl: url,
+    backgroundBlur: settingsStore.appSettings.backgroundBlur
+  })
+
+  if (result.success) {
+    toastStore.success('已设置为全局背景')
+  } else {
+    toastStore.error(result.message || '设置失败')
+  }
+}
+
+// 设置为网站 Logo
+async function handleSetAsLogo(url) {
+  const result = await settingsStore.saveAppSettings({
+    appName: settingsStore.appSettings.appName,
+    appLogo: url,
+    backgroundUrl: settingsStore.appSettings.backgroundUrl,
+    backgroundBlur: settingsStore.appSettings.backgroundBlur
+  })
+
+  if (result.success) {
+    toastStore.success('已设置为网站 Logo')
+  } else {
+    toastStore.error(result.message || '设置失败')
+  }
+}
+
+// 设置 Intersection Observer 实现无限滚动
+function setupIntersectionObserver() {
+  if (observer) {
+    observer.disconnect()
+  }
+
+  observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting && imagesStore.hasMore && !imagesStore.loading) {
+        imagesStore.loadMore()
+      }
+    },
+    { threshold: 0.1 }
+  )
+
+  if (loadMoreTrigger.value) {
+    observer.observe(loadMoreTrigger.value)
+  }
+}
+
+// 监听图片列表变化
+watch(
+  () => imagesStore.images.length,
+  () => {
+    nextTick(() => {
+      setupIntersectionObserver()
+    })
+  }
+)
+
+// 监听认证状态变化，重新获取图片
+watch(
+  () => authStore.isAuthenticated,
+  () => {
+    imagesStore.fetchImages(true)
+  }
+)
+
+onMounted(async () => {
+  // 初始化列数
+  updateColumnCount()
+  window.addEventListener('resize', updateColumnCount)
+
+  // 监听滚动事件
+  window.addEventListener('scroll', handleScroll, { passive: true })
+
+  // 获取图片列表（authStore.init() 已在插件中调用）
+  await imagesStore.fetchImages(true)
+
+  // 设置无限滚动
+  setupIntersectionObserver()
+})
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect()
+  }
+  window.removeEventListener('resize', updateColumnCount)
+  window.removeEventListener('scroll', handleScroll)
+})
+</script>
+
+<style scoped>
+.masonry-container {
+  display: flex;
+  gap: 16px;
+}
+
+.masonry-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.masonry-item {
+  break-inside: avoid;
+}
+</style>

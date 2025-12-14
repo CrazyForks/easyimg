@@ -1,0 +1,34 @@
+{
+  "name": "easyimg",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview"
+  },
+  "dependencies": {
+    "@iconify/vue": "^5.0.0",
+    "@nuxt/icon": "^2.1.0",
+    "@pinia/nuxt": "^0.11.3",
+    "@seald-io/nedb": "^4.1.2",
+    "@vueuse/motion": "^3.0.3",
+    "bcryptjs": "^3.0.3",
+    "form-data": "^4.0.1",
+    "jsonwebtoken": "^9.0.3",
+    "masonry-layout": "^4.2.2",
+    "multer": "^2.0.2",
+    "node-telegram-bot-api": "^0.67.0",
+    "nodemailer": "^7.0.11",
+    "nuxt": "latest",
+    "pinia": "^3.0.4",
+    "sharp": "^0.34.5",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.16",
+    "tailwindcss": "^3.4.0"
+  }
+}
