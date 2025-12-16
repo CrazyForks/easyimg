@@ -1,6 +1,6 @@
 services:
   easyimg:
-    image: chaoszhu/easyimg
+    image: ghcr.io/chaos-zhu/easyimg:latest
     container_name: easyimg
     restart: unless-stopped
     ports:
