@@ -778,6 +778,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { useSettingsStore } from '~/stores/settings'
 import { useToastStore } from '~/stores/toast'
+import { copyToClipboard } from '../utils/clipboard'
 
 // 使用认证中间件
 definePageMeta({
@@ -910,7 +911,7 @@ function toggleShowKey(id) {
 
 // 复制 ApiKey
 function copyApiKey(key) {
-  navigator.clipboard.writeText(key).then(() => {
+  copyToClipboard(key).then(() => {
     toastStore.success('ApiKey 已复制到剪贴板')
   }).catch(() => {
     toastStore.error('复制失败')
@@ -959,7 +960,7 @@ fetch('${baseUrl.value}/api/upload/private', {
       break
   }
 
-  navigator.clipboard.writeText(code).then(() => {
+  copyToClipboard(code).then(() => {
     toastStore.success('代码已复制到剪贴板')
   }).catch(() => {
     toastStore.error('复制失败')

@@ -227,6 +227,7 @@ import { useAuthStore } from '~/stores/auth'
 import { useImagesStore } from '~/stores/images'
 import { useSettingsStore } from '~/stores/settings'
 import { useToastStore } from '~/stores/toast'
+import { copyToClipboard } from '../utils/clipboard'
 
 const authStore = useAuthStore()
 const imagesStore = useImagesStore()
@@ -472,7 +473,7 @@ function handleCopy(type, url) {
       break
   }
 
-  navigator.clipboard.writeText(text).then(() => {
+  copyToClipboard(text).then(() => {
     toastStore.success('已复制到剪贴板')
   }).catch(() => {
     toastStore.error('复制失败')
@@ -498,7 +499,7 @@ function handleCopyMultiple(type, urls) {
   }
 
   const text = texts.join('\n')
-  navigator.clipboard.writeText(text).then(() => {
+  copyToClipboard(text).then(() => {
     toastStore.success(`已复制 ${urls.length} 张图片链接到剪贴板`)
   }).catch(() => {
     toastStore.error('复制失败')
