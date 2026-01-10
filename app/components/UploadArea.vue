@@ -30,8 +30,8 @@
         </div>
       </div>
 
-      <!-- 内容区域 - 固定高度避免状态切换时高度变化 -->
-      <div class="upload-content h-[148px]">
+      <!-- 内容区域 - 固定高度避免状态切换时高度变化，移动端增加高度 -->
+      <div class="upload-content h-[180px] sm:h-[148px]">
         <!-- 加载中骨架屏 - 配置未加载完成时显示 -->
         <template v-if="!configLoaded">
           <!-- 骨架图标 -->
@@ -73,11 +73,12 @@
           </div>
 
           <!-- 提示文字 -->
-          <div class="space-y-3">
-            <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
-              点击、拖拽或粘贴上传图片
-              <span v-if="authStore.isAuthenticated">
-                <span>{{ ' ' }} 或 {{ ' ' }}</span>
+          <div class="space-y-2 sm:space-y-3">
+            <p class="text-base sm:text-lg font-medium text-gray-700 dark:text-gray-300">
+              <span class="block sm:inline">点击、拖拽或粘贴上传图片</span>
+              <span v-if="authStore.isAuthenticated" class="block sm:inline">
+                <span class="hidden sm:inline">{{ ' ' }} 或 {{ ' ' }}</span>
+                <span class="sm:hidden"> 或 </span>
                 <span
                   @click.stop="showUrlModal = true"
                   @keydown.enter="showUrlModal = true"
@@ -85,10 +86,10 @@
                   >使用URL上传</span>
               </span>
             </p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               支持 {{ allowedFormats.join(', ').toUpperCase() }} 格式，可选择多张
             </p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
+            <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               单张最大 {{ formatFileSize(maxFileSize) }}
             </p>
           </div>

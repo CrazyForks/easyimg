@@ -21,10 +21,10 @@
 
     <!-- 顶部导航栏 -->
     <header class="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
+      <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16 gap-2">
           <!-- 左侧：Logo + 应用名称 -->
-          <NuxtLink to="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <NuxtLink to="/" class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity flex-shrink-0">
             <img
               v-if="appLogo"
               :src="appLogo"
@@ -37,18 +37,19 @@
             >
               <Icon name="heroicons:photo" class="w-5 h-5 text-white" />
             </div>
-            <span class="text-xl font-bold text-gray-900 dark:text-white">{{ appName }}</span>
+            <span class="text-lg sm:text-xl font-bold text-gray-900 dark:text-white whitespace-nowrap">{{ appName }}</span>
           </NuxtLink>
 
-          <!-- 右侧：导航菜单 -->
-          <nav class="flex items-center gap-1 sm:gap-2">
+          <!-- 右侧：导航菜单 - 移动端可横向滚动 -->
+          <nav class="flex items-center gap-0.5 sm:gap-2 overflow-x-auto scrollbar-hide">
             <!-- 首页 -->
             <NuxtLink
               to="/"
-              class="nav-link"
+              class="nav-link nav-link-icon sm:nav-link-text"
               :class="{ 'nav-link-active': route.path === '/' }"
+              title="首页"
             >
-              <Icon name="heroicons:home" class="w-5 h-5 sm:hidden" />
+              <Icon name="heroicons:home" class="w-5 h-5 flex-shrink-0" />
               <span class="hidden sm:inline">首页</span>
             </NuxtLink>
 
@@ -56,10 +57,11 @@
             <NuxtLink
               v-if="authStore.isAuthenticated"
               to="/api"
-              class="nav-link"
+              class="nav-link nav-link-icon sm:nav-link-text"
               :class="{ 'nav-link-active': route.path === '/api' }"
+              title="API"
             >
-              <Icon name="heroicons:code-bracket" class="w-5 h-5 sm:hidden" />
+              <Icon name="heroicons:code-bracket" class="w-5 h-5 flex-shrink-0" />
               <span class="hidden sm:inline">API</span>
             </NuxtLink>
 
@@ -67,10 +69,11 @@
             <NuxtLink
               v-if="authStore.isAuthenticated"
               to="/settings"
-              class="nav-link"
+              class="nav-link nav-link-icon sm:nav-link-text"
               :class="{ 'nav-link-active': route.path === '/settings' }"
+              title="设置"
             >
-              <Icon name="heroicons:cog-6-tooth" class="w-5 h-5 sm:hidden" />
+              <Icon name="heroicons:cog-6-tooth" class="w-5 h-5 flex-shrink-0" />
               <span class="hidden sm:inline">设置</span>
             </NuxtLink>
 
@@ -78,10 +81,11 @@
             <NuxtLink
               v-if="authStore.isAuthenticated"
               to="/stats"
-              class="nav-link"
+              class="nav-link nav-link-icon sm:nav-link-text"
               :class="{ 'nav-link-active': route.path === '/stats' }"
+              title="统计"
             >
-              <Icon name="heroicons:chart-bar" class="w-5 h-5 sm:hidden" />
+              <Icon name="heroicons:chart-bar" class="w-5 h-5 flex-shrink-0" />
               <span class="hidden sm:inline">统计</span>
             </NuxtLink>
 
@@ -89,47 +93,51 @@
             <NuxtLink
               v-if="authStore.isAuthenticated"
               to="/notification"
-              class="nav-link"
+              class="nav-link nav-link-icon sm:nav-link-text"
               :class="{ 'nav-link-active': route.path === '/notification' }"
+              title="通知"
             >
-              <Icon name="heroicons:bell" class="w-5 h-5 sm:hidden" />
+              <Icon name="heroicons:bell" class="w-5 h-5 flex-shrink-0" />
               <span class="hidden sm:inline">通知</span>
             </NuxtLink>
 
             <!-- 关于 -->
             <NuxtLink
               to="/about"
-              class="nav-link"
+              class="nav-link nav-link-icon sm:nav-link-text"
               :class="{ 'nav-link-active': route.path === '/about' }"
+              title="关于"
             >
-              <Icon name="heroicons:information-circle" class="w-5 h-5 sm:hidden" />
+              <Icon name="heroicons:information-circle" class="w-5 h-5 flex-shrink-0" />
               <span class="hidden sm:inline">关于</span>
             </NuxtLink>
 
             <!-- 分隔线 -->
-            <div class="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1 sm:mx-2"></div>
+            <div class="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-0.5 sm:mx-2 flex-shrink-0"></div>
 
             <!-- 登录/登出 -->
             <button
               v-if="authStore.isAuthenticated"
               @click="handleLogout"
-              class="nav-link text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+              class="nav-link nav-link-icon sm:nav-link-text text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+              title="登出"
             >
-              <Icon name="heroicons:arrow-right-on-rectangle" class="w-5 h-5 sm:hidden" />
+              <Icon name="heroicons:arrow-right-on-rectangle" class="w-5 h-5 flex-shrink-0" />
               <span class="hidden sm:inline">登出</span>
             </button>
             <NuxtLink
               v-else
               to="/login"
-              class="nav-link"
+              class="nav-link nav-link-icon sm:nav-link-text"
               :class="{ 'nav-link-active': route.path === '/login' }"
+              title="登录"
             >
-              <Icon name="heroicons:arrow-left-on-rectangle" class="w-5 h-5 sm:hidden" />
+              <Icon name="heroicons:arrow-left-on-rectangle" class="w-5 h-5 flex-shrink-0" />
               <span class="hidden sm:inline">登录</span>
             </NuxtLink>
 
             <!-- 暗黑模式切换 -->
-            <ThemeToggle />
+            <ThemeToggle class="flex-shrink-0" />
           </nav>
         </div>
       </div>
@@ -227,10 +235,32 @@ async function handleLogout() {
 
 <style scoped>
 .nav-link {
-  @apply px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors;
+  @apply rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center flex-shrink-0;
+}
+
+/* 移动端图标样式 */
+.nav-link-icon {
+  @apply p-2;
+}
+
+/* 桌面端文字样式 */
+@screen sm {
+  .nav-link-text {
+    @apply px-3 py-2;
+  }
 }
 
 .nav-link-active {
   @apply bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400;
+}
+
+/* 隐藏滚动条但保持滚动功能 */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
 }
 </style>
