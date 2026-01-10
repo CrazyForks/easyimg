@@ -1,6 +1,5 @@
 {
   "name": "easyimg",
-  "entry": ".output/server/index.mjs",
   "installCommand": "pnpm install",
   "buildCommand": "pnpm run generate",
   "assets": {
