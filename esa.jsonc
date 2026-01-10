@@ -2,5 +2,9 @@
   "name": "easyimg",
   "entry": ".output/server/index.mjs",
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm run build --platform=node"
+  "buildCommand": "pnpm run generate",
+  "assets": {
+    "directory": "./.output/public",
+    "notFoundStrategy": "singlePageApplication"
+  }
 }
