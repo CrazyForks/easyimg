@@ -1,7 +1,7 @@
 {
   "name": "easyimg",
   "installCommand": "pnpm install",
-  "buildCommand": "npm run generate",
+  "buildCommand": "pnpm run generate",
   "assets": {
     "directory": "./.output/public",
     "notFoundStrategy": "singlePageApplication"

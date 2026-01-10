@@ -57,6 +57,16 @@ export default defineNuxtConfig({
           'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-API-Key'
         }
       }
+    },
+    // 预渲染完成后强制退出进程
+    // 这是为了解决某些模块（如数据库连接、定时器）可能保持进程活跃的问题
+    hooks: {
+      'prerender:done'() {
+        console.log('[Nitro] 预渲染完成，退出进程...')
+        setTimeout(() => {
+          process.exit(0)
+        }, 1000)
+      }
     }
   },
 
