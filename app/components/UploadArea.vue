@@ -700,6 +700,11 @@ function handleSSEEvent(eventType, data) {
       } else if (failCount > 0) {
         toastStore.error(`全部下载失败`)
       }
+      // 上传完成后自动关闭弹窗
+      showUrlModal.value = false
+      imageUrls.value = ''
+      urlUploadItems.value = []
+      urlUploadProgress.value = { total: 0, completed: 0 }
       break
 
     case 'error':

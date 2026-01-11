@@ -512,7 +512,8 @@ async function handleSetAsBackground(url) {
     appName: settingsStore.appSettings.appName,
     appLogo: settingsStore.appSettings.appLogo,
     backgroundUrl: url,
-    backgroundBlur: settingsStore.appSettings.backgroundBlur
+    backgroundBlur: settingsStore.appSettings.backgroundBlur,
+    announcement: settingsStore.appSettings.announcement
   })
 
   if (result.success) {
@@ -528,7 +529,8 @@ async function handleSetAsLogo(url) {
     appName: settingsStore.appSettings.appName,
     appLogo: url,
     backgroundUrl: settingsStore.appSettings.backgroundUrl,
-    backgroundBlur: settingsStore.appSettings.backgroundBlur
+    backgroundBlur: settingsStore.appSettings.backgroundBlur,
+    announcement: settingsStore.appSettings.announcement
   })
 
   if (result.success) {
