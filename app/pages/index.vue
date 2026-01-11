@@ -508,13 +508,7 @@ function handleCopyMultiple(type, urls) {
 
 // 设置为全局背景图
 async function handleSetAsBackground(url) {
-  const result = await settingsStore.saveAppSettings({
-    appName: settingsStore.appSettings.appName,
-    appLogo: settingsStore.appSettings.appLogo,
-    backgroundUrl: url,
-    backgroundBlur: settingsStore.appSettings.backgroundBlur,
-    announcement: settingsStore.appSettings.announcement
-  })
+  const result = await settingsStore.updateAppSetting({ backgroundUrl: url })
 
   if (result.success) {
     toastStore.success('已设置为全局背景')
@@ -525,13 +519,7 @@ async function handleSetAsBackground(url) {
 
 // 设置为网站 Logo
 async function handleSetAsLogo(url) {
-  const result = await settingsStore.saveAppSettings({
-    appName: settingsStore.appSettings.appName,
-    appLogo: url,
-    backgroundUrl: settingsStore.appSettings.backgroundUrl,
-    backgroundBlur: settingsStore.appSettings.backgroundBlur,
-    announcement: settingsStore.appSettings.announcement
-  })
+  const result = await settingsStore.updateAppSetting({ appLogo: url })
 
   if (result.success) {
     toastStore.success('已设置为网站 Logo')

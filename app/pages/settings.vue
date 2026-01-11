@@ -346,17 +346,12 @@ async function saveAppSettings() {
   }
 }
 
-// 保存公告设置
+// 保存公告设置（只更新公告相关字段）
 async function saveAnnouncementSettings() {
   savingAnnouncement.value = true
 
   try {
-    const result = await settingsStore.saveAppSettings({
-      appName: appSettings.appName,
-      appLogo: appSettings.appLogo,
-      backgroundUrl: appSettings.backgroundUrl,
-      backgroundBlur: appSettings.backgroundBlur,
-      siteUrl: appSettings.siteUrl,
+    const result = await settingsStore.updateAppSetting({
       announcement: {
         enabled: announcementSettings.enabled,
         content: announcementSettings.content,

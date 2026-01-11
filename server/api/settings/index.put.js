@@ -20,43 +20,82 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    // 获取请求体
-    const body = await readBody(event)
-    const { appName, appLogo, backgroundUrl, backgroundBlur, siteUrl, announcement } = body
-
-    // 验证毛玻璃效果值范围 (0-20)
-    let blurValue = parseInt(backgroundBlur) || 0
-    if (blurValue < 0) blurValue = 0
-    if (blurValue > 20) blurValue = 20
-
-    // 处理公告配置
-    let announcementValue = {
-      enabled: false,
-      content: '',
-      displayType: 'modal'  // 'modal' | 'banner'
-    }
-    if (announcement) {
-      announcementValue = {
-        enabled: !!announcement.enabled,
-        content: announcement.content || '',
-        displayType: ['modal', 'banner'].includes(announcement.displayType) ? announcement.displayType : 'modal'
+    // 获取当前设置
+    const currentSettings = await db.settings.findOne({ key: 'appSettings' })
+    const currentValue = currentSettings?.value || {
+      appName: 'easyimg',
+      appLogo: '',
+      backgroundUrl: '',
+      backgroundBlur: 0,
+      siteUrl: '',
+      announcement: {
+        enabled: false,
+        content: '',
+        displayType: 'modal'
       }
     }
 
-    // 处理站点 URL（移除末尾斜杠）
-    let siteUrlValue = (siteUrl || '').trim()
-    if (siteUrlValue) {
-      siteUrlValue = siteUrlValue.replace(/\/+$/, '')
+    // 获取请求体
+    const body = await readBody(event)
+
+    // 构建更新对象 - 只更新传递的字段
+    const updatedValue = { ...currentValue }
+
+    // 更新 appName（如果传递了）
+    if (body.appName !== undefined) {
+      updatedValue.appName = body.appName || 'easyimg'
     }
 
-    // 构建更新对象
-    const settingsValue = {
-      appName: appName || 'easyimg',
-      appLogo: appLogo || '',
-      backgroundUrl: backgroundUrl || '',
-      backgroundBlur: blurValue,
-      siteUrl: siteUrlValue,
-      announcement: announcementValue
+    // 更新 appLogo（如果传递了）
+    if (body.appLogo !== undefined) {
+      updatedValue.appLogo = body.appLogo || ''
+    }
+
+    // 更新 backgroundUrl（如果传递了）
+    if (body.backgroundUrl !== undefined) {
+      updatedValue.backgroundUrl = body.backgroundUrl || ''
+    }
+
+    // 更新 backgroundBlur（如果传递了）
+    if (body.backgroundBlur !== undefined) {
+      let blurValue = parseInt(body.backgroundBlur) || 0
+      if (blurValue < 0) blurValue = 0
+      if (blurValue > 20) blurValue = 20
+      updatedValue.backgroundBlur = blurValue
+    }
+
+    // 更新 siteUrl（如果传递了）
+    if (body.siteUrl !== undefined) {
+      let siteUrlValue = (body.siteUrl || '').trim()
+      if (siteUrlValue) {
+        siteUrlValue = siteUrlValue.replace(/\/+$/, '')
+      }
+      updatedValue.siteUrl = siteUrlValue
+    }
+
+    // 更新 announcement（如果传递了）
+    if (body.announcement !== undefined) {
+      if (body.announcement === null) {
+        // 如果传递 null，重置为默认值
+        updatedValue.announcement = {
+          enabled: false,
+          content: '',
+          displayType: 'modal'
+        }
+      } else {
+        // 部分更新公告配置
+        updatedValue.announcement = {
+          enabled: body.announcement.enabled !== undefined
+            ? !!body.announcement.enabled
+            : (currentValue.announcement?.enabled || false),
+          content: body.announcement.content !== undefined
+            ? body.announcement.content
+            : (currentValue.announcement?.content || ''),
+          displayType: body.announcement.displayType !== undefined
+            ? (['modal', 'banner'].includes(body.announcement.displayType) ? body.announcement.displayType : 'modal')
+            : (currentValue.announcement?.displayType || 'modal')
+        }
+      }
     }
 
     // 更新设置
@@ -64,7 +103,7 @@ export default defineEventHandler(async (event) => {
       { key: 'appSettings' },
       {
         $set: {
-          value: settingsValue,
+          value: updatedValue,
           updatedAt: new Date().toISOString()
         }
       },
@@ -74,7 +113,7 @@ export default defineEventHandler(async (event) => {
     return {
       success: true,
       message: '设置已保存',
-      data: settingsValue
+      data: updatedValue
     }
   } catch (error) {
     if (error.statusCode) {

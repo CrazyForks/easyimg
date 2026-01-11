@@ -74,7 +74,7 @@ export const useSettingsStore = defineStore('settings', {
       }
     },
 
-    // 保存应用设置
+    // 保存应用设置（完整更新，用于设置页面）
     async saveAppSettings(settings) {
       const authStore = useAuthStore()
 
@@ -82,6 +82,28 @@ export const useSettingsStore = defineStore('settings', {
         const response = await $fetch('/api/settings', {
           method: 'PUT',
           body: settings,
+          headers: authStore.authHeader
+        })
+
+        if (response.success) {
+          this.appSettings = { ...this.appSettings, ...response.data }
+          return { success: true }
+        }
+
+        return { success: false, message: response.message }
+      } catch (error) {
+        return { success: false, message: error.data?.message || '保存失败' }
+      }
+    },
+
+    // 部分更新应用设置（只更新传递的字段，用于快捷操作）
+    async updateAppSetting(partialSettings) {
+      const authStore = useAuthStore()
+
+      try {
+        const response = await $fetch('/api/settings', {
+          method: 'PUT',
+          body: partialSettings,
           headers: authStore.authHeader
         })
 
