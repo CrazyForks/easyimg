@@ -22,16 +22,38 @@ async function initDefaultUser() {
 
 // 初始化 JWT 密钥
 async function initJwtSecret() {
+  const isProduction = process.env.NODE_ENV === 'production'
   let jwtSetting = await db.settings.findOne({ key: 'jwtSecret' })
-  if (!jwtSetting) {
+
+  if (isProduction) {
+    // 生产环境：每次重启都重新生成 JWT 密钥，使所有之前的 token 失效
     const secret = crypto.randomBytes(64).toString('hex')
-    await db.settings.insert({
-      _id: uuidv4(),
-      key: 'jwtSecret',
-      value: secret,
-      createdAt: new Date().toISOString()
-    })
-    console.log('[Database] JWT 密钥已生成')
+    if (jwtSetting) {
+      await db.settings.update(
+        { key: 'jwtSecret' },
+        { $set: { value: secret, updatedAt: new Date().toISOString() } }
+      )
+    } else {
+      await db.settings.insert({
+        _id: uuidv4(),
+        key: 'jwtSecret',
+        value: secret,
+        createdAt: new Date().toISOString()
+      })
+    }
+    console.log('[Database] JWT 密钥已重新生成（生产环境）')
+  } else {
+    // 开发环境：仅在不存在时生成，保持 token 持久化
+    if (!jwtSetting) {
+      const secret = crypto.randomBytes(64).toString('hex')
+      await db.settings.insert({
+        _id: uuidv4(),
+        key: 'jwtSecret',
+        value: secret,
+        createdAt: new Date().toISOString()
+      })
+      console.log('[Database] JWT 密钥已生成（开发环境）')
+    }
   }
 }
 
