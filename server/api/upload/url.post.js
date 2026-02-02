@@ -7,9 +7,30 @@ export default defineEventHandler(async (event) => {
   const clientIP = getRequestIP(event, { xForwardedFor: true }) || 'unknown'
 
   try {
-    // 验证登录状态（仅端内调用，不使用API Key）
-    await authMiddleware(event)
-    const user = event.context.user
+    // 检查是否使用 API Key
+    const apiKey = getHeader(event, 'x-api-key') || getQuery(event).apiKey
+    let uploadedBy = '管理员'
+    let uploadedByType = 'url'
+    let apiKeyId = null
+
+    if (apiKey) {
+      // API Key 认证
+      const keyDoc = await db.apikeys.findOne({ key: apiKey, enabled: true })
+      if (!keyDoc) {
+        throw createError({
+          statusCode: 401,
+          message: 'API Key 无效或已禁用'
+        })
+      }
+      uploadedBy = keyDoc.name || 'API用户'
+      uploadedByType = 'url-api'
+      apiKeyId = keyDoc._id
+    } else {
+      // 登录认证
+      await authMiddleware(event)
+      const user = event.context.user
+      uploadedBy = user.username || '管理员'
+    }
 
     // 解析请求体
     const body = await readBody(event)
@@ -177,12 +198,17 @@ export default defineEventHandler(async (event) => {
       height: metadata.height || 0,
       isWebp: isWebp,
       isDeleted: false,
-      uploadedBy: user.username || '管理员',
-      uploadedByType: 'url', // 标记为URL上传
+      uploadedBy: uploadedBy,
+      uploadedByType: uploadedByType, // 标记为URL上传
       sourceUrl: url, // 保存原始URL
       ip: clientIP,
       uploadedAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
+    }
+
+    // 如果是 API Key 上传，添加 apiKeyId
+    if (apiKeyId) {
+      imageDoc.apiKeyId = apiKeyId
     }
 
     await db.images.insert(imageDoc)
