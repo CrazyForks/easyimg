@@ -81,38 +81,61 @@
             />
           </div>
 
-          <!-- 压缩并转换为 WebP -->
+          <!-- 开启压缩 -->
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <div>
-                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">压缩并转换为 WebP</label>
-                <p class="text-xs text-gray-500 dark:text-gray-400">自动将上传的图片压缩并转换为 WebP 格式</p>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">开启压缩</label>
+                <p class="text-xs text-gray-500 dark:text-gray-400">压缩上传的图片（默认不转换格式）</p>
               </div>
               <button
                 type="button"
-                @click="publicConfig.compressToWebp = !publicConfig.compressToWebp"
+                @click="publicConfig.enableCompression = !publicConfig.enableCompression"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                :class="publicConfig.compressToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+                :class="publicConfig.enableCompression ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
               >
                 <span
                   class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                  :class="publicConfig.compressToWebp ? 'translate-x-6' : 'translate-x-1'"
+                  :class="publicConfig.enableCompression ? 'translate-x-6' : 'translate-x-1'"
                 />
               </button>
             </div>
 
-            <div v-if="publicConfig.compressToWebp" class="ml-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                压缩质量 ({{ publicConfig.webpQuality }}%)
-              </label>
-              <input
-                type="range"
-                v-model.number="publicConfig.webpQuality"
-                min="10"
-                max="100"
-                step="5"
-                class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-              />
+            <!-- 压缩选项 -->
+            <div v-if="publicConfig.enableCompression" class="ml-4 space-y-3">
+              <!-- 压缩质量 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  压缩质量 ({{ publicConfig.compressionQuality }}%)
+                </label>
+                <input
+                  type="range"
+                  v-model.number="publicConfig.compressionQuality"
+                  min="10"
+                  max="100"
+                  step="5"
+                  class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+
+              <!-- 转为 WebP -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 WebP 格式</p>
+                </div>
+                <button
+                  type="button"
+                  @click="publicConfig.convertToWebp = !publicConfig.convertToWebp"
+                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                  :class="publicConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+                >
+                  <span
+                    class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                    :class="publicConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -458,38 +481,61 @@
             />
           </div>
 
-          <!-- 转换为 WebP -->
+          <!-- 开启压缩 -->
           <div class="space-y-3">
             <div class="flex items-center justify-between">
               <div>
-                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转换为 WebP</label>
-                <p class="text-xs text-gray-500 dark:text-gray-400">将上传的图片转换为 WebP 格式</p>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">开启压缩</label>
+                <p class="text-xs text-gray-500 dark:text-gray-400">压缩上传的图片（默认不转换格式）</p>
               </div>
               <button
                 type="button"
-                @click="privateConfig.convertToWebp = !privateConfig.convertToWebp"
+                @click="privateConfig.enableCompression = !privateConfig.enableCompression"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                :class="privateConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+                :class="privateConfig.enableCompression ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
               >
                 <span
                   class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                  :class="privateConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
+                  :class="privateConfig.enableCompression ? 'translate-x-6' : 'translate-x-1'"
                 />
               </button>
             </div>
 
-            <div v-if="privateConfig.convertToWebp" class="ml-4">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                压缩质量 ({{ privateConfig.webpQuality }}%)
-              </label>
-              <input
-                type="range"
-                v-model.number="privateConfig.webpQuality"
-                min="10"
-                max="100"
-                step="5"
-                class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-              />
+            <!-- 压缩选项 -->
+            <div v-if="privateConfig.enableCompression" class="ml-4 space-y-3">
+              <!-- 压缩质量 -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  压缩质量 ({{ privateConfig.compressionQuality }}%)
+                </label>
+                <input
+                  type="range"
+                  v-model.number="privateConfig.compressionQuality"
+                  min="10"
+                  max="100"
+                  step="5"
+                  class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+                />
+              </div>
+
+              <!-- 转为 WebP -->
+              <div class="flex items-center justify-between">
+                <div>
+                  <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 WebP 格式</p>
+                </div>
+                <button
+                  type="button"
+                  @click="privateConfig.convertToWebp = !privateConfig.convertToWebp"
+                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                  :class="privateConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+                >
+                  <span
+                    class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                    :class="privateConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
+                  />
+                </button>
+              </div>
             </div>
           </div>
 
@@ -907,8 +953,9 @@ const publicConfig = reactive({
   enabled: true,
   allowedFormats: ['jpeg', 'jpg', 'png', 'gif', 'webp', 'avif', 'svg', 'bmp', 'ico', 'apng', 'tiff', 'tif'],
   maxFileSize: 10 * 1024 * 1024,
-  compressToWebp: true,
-  webpQuality: 80,
+  enableCompression: false,
+  compressionQuality: 80,
+  convertToWebp: false,
   rateLimit: 10,
   allowConcurrent: false,
   contentSafety: { ...defaultContentSafetyConfig }
@@ -917,8 +964,9 @@ const publicConfig = reactive({
 // 私有 API 配置
 const privateConfig = reactive({
   maxFileSize: 100 * 1024 * 1024,
+  enableCompression: false,
+  compressionQuality: 80,
   convertToWebp: false,
-  webpQuality: 80,
   showOnHomepage: false
 })
 
@@ -1036,8 +1084,9 @@ async function savePublicConfig() {
       enabled: publicConfig.enabled,
       allowedFormats: publicConfig.allowedFormats,
       maxFileSize: publicConfig.maxFileSize,
-      compressToWebp: publicConfig.compressToWebp,
-      webpQuality: publicConfig.webpQuality,
+      enableCompression: publicConfig.enableCompression,
+      compressionQuality: publicConfig.compressionQuality,
+      convertToWebp: publicConfig.convertToWebp,
       rateLimit: publicConfig.rateLimit,
       allowConcurrent: publicConfig.allowConcurrent,
       contentSafety: publicConfig.contentSafety
@@ -1061,8 +1110,9 @@ async function savePrivateConfig() {
   try {
     const result = await settingsStore.savePrivateApiConfig({
       maxFileSize: privateConfig.maxFileSize,
+      enableCompression: privateConfig.enableCompression,
+      compressionQuality: privateConfig.compressionQuality,
       convertToWebp: privateConfig.convertToWebp,
-      webpQuality: privateConfig.webpQuality,
       showOnHomepage: privateConfig.showOnHomepage
     })
 

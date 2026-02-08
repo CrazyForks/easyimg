@@ -29,8 +29,9 @@ export default defineEventHandler(async (event) => {
         success: true,
         data: {
           maxFileSize: 100 * 1024 * 1024,
+          enableCompression: false,
+          compressionQuality: 80,
           convertToWebp: false,
-          webpQuality: 80,
           showOnHomepage: false
         }
       }

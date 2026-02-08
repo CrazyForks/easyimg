@@ -119,18 +119,28 @@ export default defineEventHandler(async (event) => {
     // 生成 UUID
     const imageUuid = uuidv4()
 
-    // 处理图片（可选转换为 WebP）
+    // 处理图片（根据配置决定是否压缩和转换格式）
     let processedBuffer = file.buffer
     let finalFormat = fileExt
     let isWebp = false
 
-    if (config.convertToWebp && fileExt !== 'gif') {
-      processedBuffer = await processImage(file.buffer, {
-        format: 'webp',
-        quality: config.webpQuality || 80
-      })
-      finalFormat = 'webp'
-      isWebp = true
+    if (config.enableCompression && fileExt !== 'gif') {
+      // 开启压缩
+      const processOptions = {
+        quality: config.compressionQuality || 80
+      }
+
+      // 如果同时开启了转为 WebP
+      if (config.convertToWebp) {
+        processOptions.format = 'webp'
+        finalFormat = 'webp'
+        isWebp = true
+      } else {
+        // 不转换格式，保持原格式压缩
+        processOptions.format = fileExt
+      }
+
+      processedBuffer = await processImage(file.buffer, processOptions)
     }
 
     // 获取图片元数据

@@ -26,16 +26,18 @@ export default defineEventHandler(async (event) => {
     // 验证配置项
     const {
       maxFileSize,
+      enableCompression,
+      compressionQuality,
       convertToWebp,
-      webpQuality,
       showOnHomepage
     } = body
 
     // 构建更新对象
     const configValue = {
       maxFileSize: maxFileSize || 100 * 1024 * 1024,
+      enableCompression: enableCompression || false,
+      compressionQuality: compressionQuality || 80,
       convertToWebp: convertToWebp || false,
-      webpQuality: webpQuality || 80,
       showOnHomepage: showOnHomepage === true
     }
 

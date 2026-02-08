@@ -29,8 +29,9 @@ export default defineEventHandler(async (event) => {
       enabled,
       allowedFormats,
       maxFileSize,
-      compressToWebp,
-      webpQuality,
+      enableCompression,
+      compressionQuality,
+      convertToWebp,
       rateLimit,
       allowConcurrent,
       contentSafety
@@ -66,8 +67,9 @@ export default defineEventHandler(async (event) => {
       enabled: enabled !== undefined ? enabled : true,
       allowedFormats: Array.isArray(allowedFormats) ? allowedFormats : ['jpg', 'jpeg', 'png', 'gif', 'webp'],
       maxFileSize: maxFileSize || 10 * 1024 * 1024,
-      compressToWebp: compressToWebp !== undefined ? compressToWebp : true,
-      webpQuality: webpQuality || 80,
+      enableCompression: enableCompression || false,
+      compressionQuality: compressionQuality || 80,
+      convertToWebp: convertToWebp || false,
       rateLimit: rateLimit || 10,
       allowConcurrent: allowConcurrent || false,
       contentSafety: contentSafetyConfig

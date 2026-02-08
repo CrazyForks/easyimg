@@ -20,8 +20,9 @@ export default defineEventHandler(async (event) => {
       enabled: true,
       allowedFormats: ['jpeg', 'jpg', 'png', 'gif', 'webp', 'avif', 'svg', 'bmp', 'ico', 'apng', 'tiff', 'tif'],
       maxFileSize: 10 * 1024 * 1024,
-      compressToWebp: true,
-      webpQuality: 80,
+      enableCompression: false,
+      compressionQuality: 80,
+      convertToWebp: false,
       rateLimit: 10,
       allowConcurrent: false,
       contentSafety: getDefaultContentSafetyConfig()
