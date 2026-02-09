@@ -67,6 +67,11 @@ export default defineEventHandler(async (event) => {
     for (let i = 0; i < urls.length; i++) {
       const currentUrl = urls[i]
 
+      // 批量上传时，在第二次及之后的请求前延迟1秒
+      if (i > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+
       try {
         // 验证URL格式
         let imageUrl
@@ -86,7 +91,7 @@ export default defineEventHandler(async (event) => {
         let response
         try {
           const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 30000) // 30秒超时
+          const timeoutId = setTimeout(() => controller.abort(), 10000) // 10秒超时
 
           // 构建随机请求头
           const fetchHeaders = getRandomHeaders(imageUrl)
@@ -169,7 +174,9 @@ export default defineEventHandler(async (event) => {
         let finalFormat = fileExt
         let isWebp = false
 
-        if (config.enableCompression && fileExt !== 'gif') {
+        // 只有文件大于200kb才进行压缩
+        const fileSizeInKb = buffer.length / 1024
+        if (config.enableCompression && fileExt !== 'gif' && fileSizeInKb > 200) {
           // 开启压缩
           const processOptions = {
             quality: config.compressionQuality || 80
@@ -234,7 +241,7 @@ export default defineEventHandler(async (event) => {
           uuid: imageUuid,
           filename: filename,
           format: finalFormat,
-          size: processedBuffer.length,
+          size: Math.round(processedBuffer.length / 1024 * 100) / 100, // 转换为KB，保留2位小数
           width: metadata.width || 0,
           height: metadata.height || 0,
           url: `/i/${imageUuid}.${finalFormat}`,
