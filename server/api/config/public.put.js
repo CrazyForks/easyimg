@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
       enableCompression,
       compressionQuality,
       convertToWebp,
+      convertToPng,
       rateLimit,
       allowConcurrent,
       contentSafety
@@ -62,14 +63,18 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // 构建更新对象
+    // 构建更新对象（convertToWebp 和 convertToPng 互斥）
+    const finalConvertToWebp = convertToWebp || false
+    const finalConvertToPng = finalConvertToWebp ? false : (convertToPng || false)
+
     const configValue = {
       enabled: enabled !== undefined ? enabled : true,
       allowedFormats: Array.isArray(allowedFormats) ? allowedFormats : ['jpg', 'jpeg', 'png', 'gif', 'webp'],
       maxFileSize: maxFileSize || 10 * 1024 * 1024,
       enableCompression: enableCompression || false,
       compressionQuality: compressionQuality || 80,
-      convertToWebp: convertToWebp || false,
+      convertToWebp: finalConvertToWebp,
+      convertToPng: finalConvertToPng,
       rateLimit: rateLimit || 10,
       allowConcurrent: allowConcurrent || false,
       contentSafety: contentSafetyConfig

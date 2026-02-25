@@ -5,6 +5,54 @@ import { v4 as uuidv4 } from 'uuid'
 import { processImage, getImageMetadata } from './image.js'
 import db from './db.js'
 
+/**
+ * 根据配置处理图片格式转换/压缩
+ * convertToWebp 与 convertToPng 互斥，WebP 优先级更高
+ * @param {Buffer} buffer - 原始图片数据
+ * @param {string} fileExt - 原始文件扩展名
+ * @param {Object} config - 配置对象
+ * @param {boolean} config.enableCompression - 是否开启压缩
+ * @param {number} config.compressionQuality - 压缩质量 (0-100)
+ * @param {boolean} config.convertToWebp - 是否转换为 WebP
+ * @param {boolean} config.convertToPng - 是否转换为 PNG
+ * @param {number} [minSizeKb=0] - 触发压缩的最小文件大小（KB），0 表示不限
+ * @returns {Promise<{processedBuffer: Buffer, finalFormat: string, isWebp: boolean}>}
+ */
+export async function processImageWithConfig(buffer, fileExt, config, minSizeKb = 0) {
+  let processedBuffer = buffer
+  let finalFormat = fileExt
+  let isWebp = false
+
+  const fileSizeInKb = buffer.length / 1024
+  const shouldProcess = config.enableCompression
+    && fileExt !== 'gif'
+    && (minSizeKb === 0 || fileSizeInKb > minSizeKb)
+
+  if (shouldProcess) {
+    const processOptions = {
+      quality: config.compressionQuality || 80
+    }
+
+    if (config.convertToWebp) {
+      // 转为 WebP（优先级高于 PNG）
+      processOptions.format = 'webp'
+      finalFormat = 'webp'
+      isWebp = true
+    } else if (config.convertToPng) {
+      // 转为 PNG
+      processOptions.format = 'png'
+      finalFormat = 'png'
+    } else {
+      // 保持原格式压缩
+      processOptions.format = fileExt
+    }
+
+    processedBuffer = await processImage(buffer, processOptions)
+  }
+
+  return { processedBuffer, finalFormat, isWebp }
+}
+
 // 上传目录：生产环境使用 /app/uploads，开发环境使用项目根目录下的 uploads
 const uploadsDir = process.env.NODE_ENV === 'production'
   ? '/app/uploads'

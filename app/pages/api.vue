@@ -118,23 +118,45 @@
                 />
               </div>
 
-              <!-- 转为 WebP -->
-              <div class="flex items-center justify-between">
-                <div>
-                  <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 WebP 格式</p>
+              <!-- 转换格式选项组（互斥） -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">转换格式（二选一，可都不选）</label>
+                <!-- 转为 WebP -->
+                <div class="flex items-center justify-between">
+                  <div>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 WebP 格式（不可与转为 PNG 同时开启）</p>
+                  </div>
+                  <button
+                    type="button"
+                    @click="togglePublicConvertFormat('webp')"
+                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                    :class="publicConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+                  >
+                    <span
+                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                      :class="publicConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
+                    />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  @click="publicConfig.convertToWebp = !publicConfig.convertToWebp"
-                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                  :class="publicConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
-                >
-                  <span
-                    class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                    :class="publicConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
-                  />
-                </button>
+                <!-- 转为 PNG -->
+                <div class="flex items-center justify-between">
+                  <div>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 PNG</label>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 PNG 格式（不可与转为 WebP 同时开启）</p>
+                  </div>
+                  <button
+                    type="button"
+                    @click="togglePublicConvertFormat('png')"
+                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                    :class="publicConfig.convertToPng ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+                  >
+                    <span
+                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                      :class="publicConfig.convertToPng ? 'translate-x-6' : 'translate-x-1'"
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -518,23 +540,45 @@
                 />
               </div>
 
-              <!-- 转为 WebP -->
-              <div class="flex items-center justify-between">
-                <div>
-                  <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
-                  <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 WebP 格式</p>
+              <!-- 转换格式选项组（互斥） -->
+              <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">转换格式（二选一，可都不选）</label>
+                <!-- 转为 WebP -->
+                <div class="flex items-center justify-between">
+                  <div>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 WebP 格式（不可与转为 PNG 同时开启）</p>
+                  </div>
+                  <button
+                    type="button"
+                    @click="togglePrivateConvertFormat('webp')"
+                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                    :class="privateConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+                  >
+                    <span
+                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                      :class="privateConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
+                    />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  @click="privateConfig.convertToWebp = !privateConfig.convertToWebp"
-                  class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                  :class="privateConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
-                >
-                  <span
-                    class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                    :class="privateConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
-                  />
-                </button>
+                <!-- 转为 PNG -->
+                <div class="flex items-center justify-between">
+                  <div>
+                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 PNG</label>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 PNG 格式（不可与转为 WebP 同时开启）</p>
+                  </div>
+                  <button
+                    type="button"
+                    @click="togglePrivateConvertFormat('png')"
+                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                    :class="privateConfig.convertToPng ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+                  >
+                    <span
+                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                      :class="privateConfig.convertToPng ? 'translate-x-6' : 'translate-x-1'"
+                    />
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -956,6 +1000,7 @@ const publicConfig = reactive({
   enableCompression: false,
   compressionQuality: 80,
   convertToWebp: false,
+  convertToPng: false,
   rateLimit: 10,
   allowConcurrent: false,
   contentSafety: { ...defaultContentSafetyConfig }
@@ -967,6 +1012,7 @@ const privateConfig = reactive({
   enableCompression: false,
   compressionQuality: 80,
   convertToWebp: false,
+  convertToPng: false,
   showOnHomepage: false
 })
 
@@ -1076,6 +1122,28 @@ async function toggleContentSafety() {
   }
 }
 
+// 互斥切换公共配置格式转换
+function togglePublicConvertFormat(format) {
+  if (format === 'webp') {
+    publicConfig.convertToWebp = !publicConfig.convertToWebp
+    if (publicConfig.convertToWebp) publicConfig.convertToPng = false
+  } else if (format === 'png') {
+    publicConfig.convertToPng = !publicConfig.convertToPng
+    if (publicConfig.convertToPng) publicConfig.convertToWebp = false
+  }
+}
+
+// 互斥切换私有配置格式转换
+function togglePrivateConvertFormat(format) {
+  if (format === 'webp') {
+    privateConfig.convertToWebp = !privateConfig.convertToWebp
+    if (privateConfig.convertToWebp) privateConfig.convertToPng = false
+  } else if (format === 'png') {
+    privateConfig.convertToPng = !privateConfig.convertToPng
+    if (privateConfig.convertToPng) privateConfig.convertToWebp = false
+  }
+}
+
 // 保存公共 API 配置
 async function savePublicConfig() {
   saving.value = true
@@ -1087,6 +1155,7 @@ async function savePublicConfig() {
       enableCompression: publicConfig.enableCompression,
       compressionQuality: publicConfig.compressionQuality,
       convertToWebp: publicConfig.convertToWebp,
+      convertToPng: publicConfig.convertToPng,
       rateLimit: publicConfig.rateLimit,
       allowConcurrent: publicConfig.allowConcurrent,
       contentSafety: publicConfig.contentSafety
@@ -1113,6 +1182,7 @@ async function savePrivateConfig() {
       enableCompression: privateConfig.enableCompression,
       compressionQuality: privateConfig.compressionQuality,
       convertToWebp: privateConfig.convertToWebp,
+      convertToPng: privateConfig.convertToPng,
       showOnHomepage: privateConfig.showOnHomepage
     })
 

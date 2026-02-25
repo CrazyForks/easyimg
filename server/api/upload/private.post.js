@@ -1,6 +1,6 @@
 import db from '../../utils/db.js'
-import { processImage, getImageMetadata, saveUploadedFile } from '../../utils/image.js'
-import { parseFormData } from '../../utils/upload.js'
+import { getImageMetadata, saveUploadedFile } from '../../utils/image.js'
+import { parseFormData, processImageWithConfig } from '../../utils/upload.js'
 import { v4 as uuidv4 } from 'uuid'
 import { sendUploadNotification } from '../../utils/notification.js'
 
@@ -120,28 +120,7 @@ export default defineEventHandler(async (event) => {
     const imageUuid = uuidv4()
 
     // 处理图片（根据配置决定是否压缩和转换格式）
-    let processedBuffer = file.buffer
-    let finalFormat = fileExt
-    let isWebp = false
-
-    if (config.enableCompression && fileExt !== 'gif') {
-      // 开启压缩
-      const processOptions = {
-        quality: config.compressionQuality || 80
-      }
-
-      // 如果同时开启了转为 WebP
-      if (config.convertToWebp) {
-        processOptions.format = 'webp'
-        finalFormat = 'webp'
-        isWebp = true
-      } else {
-        // 不转换格式，保持原格式压缩
-        processOptions.format = fileExt
-      }
-
-      processedBuffer = await processImage(file.buffer, processOptions)
-    }
+    const { processedBuffer, finalFormat, isWebp } = await processImageWithConfig(file.buffer, fileExt, config)
 
     // 获取图片元数据
     const metadata = await getImageMetadata(processedBuffer)

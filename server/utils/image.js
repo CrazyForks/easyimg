@@ -100,6 +100,21 @@ export async function convertToWebP(buffer) {
 }
 
 /**
+ * 转换为 PNG
+ */
+export async function convertToPNG(buffer, quality = 80) {
+  try {
+    const converted = await sharp(buffer)
+      .png({ quality })
+      .toBuffer()
+    return converted
+  } catch (error) {
+    console.error('转换为 PNG 失败:', error)
+    throw error
+  }
+}
+
+/**
  * 保存图片到磁盘
  */
 export async function saveImage(buffer, filename) {
@@ -162,6 +177,7 @@ export default {
   getImageMetadata,
   compressToWebP,
   convertToWebP,
+  convertToPNG,
   saveImage,
   deleteImage,
   generateFilename,

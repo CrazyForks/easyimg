@@ -23,6 +23,7 @@ export default defineEventHandler(async (event) => {
       enableCompression: false,
       compressionQuality: 80,
       convertToWebp: false,
+      convertToPng: false,
       rateLimit: 10,
       allowConcurrent: false,
       contentSafety: getDefaultContentSafetyConfig()

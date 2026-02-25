@@ -19,15 +19,19 @@ export const useSettingsStore = defineStore('settings', {
       enabled: true,
       allowedFormats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
       maxFileSize: 10 * 1024 * 1024,
-      compressToWebp: true,
-      webpQuality: 80,
+      enableCompression: false,
+      compressionQuality: 80,
+      convertToWebp: false,
+      convertToPng: false,
       rateLimit: 10,
       allowConcurrent: false
     },
     privateApiConfig: {
       maxFileSize: 100 * 1024 * 1024,
+      enableCompression: false,
+      compressionQuality: 80,
       convertToWebp: false,
-      webpQuality: 80,
+      convertToPng: false,
       showOnHomepage: false
     },
     apiKeys: [],

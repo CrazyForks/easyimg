@@ -29,15 +29,20 @@ export default defineEventHandler(async (event) => {
       enableCompression,
       compressionQuality,
       convertToWebp,
+      convertToPng,
       showOnHomepage
     } = body
 
-    // 构建更新对象
+    // 构建更新对象（convertToWebp 和 convertToPng 互斥）
+    const finalConvertToWebp = convertToWebp || false
+    const finalConvertToPng = finalConvertToWebp ? false : (convertToPng || false)
+
     const configValue = {
       maxFileSize: maxFileSize || 100 * 1024 * 1024,
       enableCompression: enableCompression || false,
       compressionQuality: compressionQuality || 80,
-      convertToWebp: convertToWebp || false,
+      convertToWebp: finalConvertToWebp,
+      convertToPng: finalConvertToPng,
       showOnHomepage: showOnHomepage === true
     }
 
