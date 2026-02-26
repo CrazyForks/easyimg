@@ -7,7 +7,9 @@ import db from './db.js'
 
 /**
  * 根据配置处理图片格式转换/压缩
- * convertToWebp 与 convertToPng 互斥，WebP 优先级更高
+ * 压缩与格式转换相互独立：
+ * - enableCompression：仅控制是否压缩（按质量压缩），不影响格式转换
+ * - convertToWebp / convertToPng / convertToJpg：格式转换独立开关（三选一，webp > jpg > png 优先级）
  * @param {Buffer} buffer - 原始图片数据
  * @param {string} fileExt - 原始文件扩展名
  * @param {Object} config - 配置对象
@@ -15,6 +17,7 @@ import db from './db.js'
  * @param {number} config.compressionQuality - 压缩质量 (0-100)
  * @param {boolean} config.convertToWebp - 是否转换为 WebP
  * @param {boolean} config.convertToPng - 是否转换为 PNG
+ * @param {boolean} config.convertToJpg - 是否转换为 JPG
  * @param {number} [minSizeKb=0] - 触发压缩的最小文件大小（KB），0 表示不限
  * @returns {Promise<{processedBuffer: Buffer, finalFormat: string, isWebp: boolean}>}
  */
@@ -23,30 +26,37 @@ export async function processImageWithConfig(buffer, fileExt, config, minSizeKb 
   let finalFormat = fileExt
   let isWebp = false
 
+  const isGif = fileExt === 'gif'
   const fileSizeInKb = buffer.length / 1024
-  const shouldProcess = config.enableCompression
-    && fileExt !== 'gif'
-    && (minSizeKb === 0 || fileSizeInKb > minSizeKb)
 
-  if (shouldProcess) {
-    const processOptions = {
-      quality: config.compressionQuality || 80
-    }
-
+  // 确定目标格式（格式转换独立于压缩）
+  let targetFormat = fileExt
+  if (!isGif) {
     if (config.convertToWebp) {
-      // 转为 WebP（优先级高于 PNG）
-      processOptions.format = 'webp'
-      finalFormat = 'webp'
+      targetFormat = 'webp'
       isWebp = true
+    } else if (config.convertToJpg) {
+      targetFormat = 'jpg'
     } else if (config.convertToPng) {
-      // 转为 PNG
-      processOptions.format = 'png'
-      finalFormat = 'png'
-    } else {
-      // 保持原格式压缩
-      processOptions.format = fileExt
+      targetFormat = 'png'
     }
+  }
+  finalFormat = targetFormat
 
+  // 判断是否需要格式转换
+  const needConvert = !isGif && targetFormat !== fileExt
+
+  // 判断是否需要压缩（低于 100KB 的图片不执行压缩，格式转换不受此限制）
+  const compressMinSizeKb = minSizeKb > 0 ? minSizeKb : 100
+  const needCompress = config.enableCompression
+    && !isGif
+    && fileSizeInKb > compressMinSizeKb
+
+  if (needConvert || needCompress) {
+    const processOptions = {
+      format: targetFormat === 'jpg' ? 'jpeg' : targetFormat,
+      quality: needCompress ? (config.compressionQuality || 80) : 100
+    }
     processedBuffer = await processImage(buffer, processOptions)
   }
 

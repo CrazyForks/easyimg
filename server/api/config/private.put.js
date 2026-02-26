@@ -30,12 +30,14 @@ export default defineEventHandler(async (event) => {
       compressionQuality,
       convertToWebp,
       convertToPng,
+      convertToJpg,
       showOnHomepage
     } = body
 
-    // 构建更新对象（convertToWebp 和 convertToPng 互斥）
+    // 构建更新对象（格式转换三选一：webp > jpg > png 优先级）
     const finalConvertToWebp = convertToWebp || false
-    const finalConvertToPng = finalConvertToWebp ? false : (convertToPng || false)
+    const finalConvertToJpg = finalConvertToWebp ? false : (convertToJpg || false)
+    const finalConvertToPng = (finalConvertToWebp || finalConvertToJpg) ? false : (convertToPng || false)
 
     const configValue = {
       maxFileSize: maxFileSize || 100 * 1024 * 1024,
@@ -43,6 +45,7 @@ export default defineEventHandler(async (event) => {
       compressionQuality: compressionQuality || 80,
       convertToWebp: finalConvertToWebp,
       convertToPng: finalConvertToPng,
+      convertToJpg: finalConvertToJpg,
       showOnHomepage: showOnHomepage === true
     }
 

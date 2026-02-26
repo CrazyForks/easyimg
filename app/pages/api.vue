@@ -86,7 +86,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <label class="text-sm font-medium text-gray-700 dark:text-gray-300">开启压缩</label>
-                <p class="text-xs text-gray-500 dark:text-gray-400">压缩上传的图片（默认不转换格式）</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">压缩上传的图片，不影响格式转换</p>
               </div>
               <button
                 type="button"
@@ -101,63 +101,81 @@
               </button>
             </div>
 
-            <!-- 压缩选项 -->
-            <div v-if="publicConfig.enableCompression" class="ml-4 space-y-3">
-              <!-- 压缩质量 -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  压缩质量 ({{ publicConfig.compressionQuality }}%)
-                </label>
-                <input
-                  type="range"
-                  v-model.number="publicConfig.compressionQuality"
-                  min="10"
-                  max="100"
-                  step="5"
-                  class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                />
-              </div>
+            <!-- 压缩质量（开启压缩后显示） -->
+            <div v-if="publicConfig.enableCompression" class="ml-4">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                压缩质量 ({{ publicConfig.compressionQuality }}%)
+              </label>
+              <input
+                type="range"
+                v-model.number="publicConfig.compressionQuality"
+                min="10"
+                max="100"
+                step="5"
+                class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+              />
+            </div>
+          </div>
 
-              <!-- 转换格式选项组（互斥） -->
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">转换格式（二选一，可都不选）</label>
-                <!-- 转为 WebP -->
-                <div class="flex items-center justify-between">
-                  <div>
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 WebP 格式（不可与转为 PNG 同时开启）</p>
-                  </div>
-                  <button
-                    type="button"
-                    @click="togglePublicConvertFormat('webp')"
-                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                    :class="publicConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
-                  >
-                    <span
-                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                      :class="publicConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
-                    />
-                  </button>
-                </div>
-                <!-- 转为 PNG -->
-                <div class="flex items-center justify-between">
-                  <div>
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 PNG</label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 PNG 格式（不可与转为 WebP 同时开启）</p>
-                  </div>
-                  <button
-                    type="button"
-                    @click="togglePublicConvertFormat('png')"
-                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                    :class="publicConfig.convertToPng ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
-                  >
-                    <span
-                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                      :class="publicConfig.convertToPng ? 'translate-x-6' : 'translate-x-1'"
-                    />
-                  </button>
-                </div>
+          <!-- 格式转换（独立于压缩） -->
+          <div class="space-y-2">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">格式转换</label>
+              <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为指定格式（三选一，可都不选），独立于压缩功能</p>
+            </div>
+            <!-- 转为 WebP -->
+            <div class="flex items-center justify-between">
+              <div>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
+                <p class="text-xs text-gray-500 dark:text-gray-400">体积更小，现代浏览器兼容</p>
               </div>
+              <button
+                type="button"
+                @click="togglePublicConvertFormat('webp')"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                :class="publicConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+              >
+                <span
+                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                  :class="publicConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
+                />
+              </button>
+            </div>
+            <!-- 转为 JPG -->
+            <div class="flex items-center justify-between">
+              <div>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 JPG</label>
+                <p class="text-xs text-gray-500 dark:text-gray-400">通用格式，兼容性最佳</p>
+              </div>
+              <button
+                type="button"
+                @click="togglePublicConvertFormat('jpg')"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                :class="publicConfig.convertToJpg ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+              >
+                <span
+                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                  :class="publicConfig.convertToJpg ? 'translate-x-6' : 'translate-x-1'"
+                />
+              </button>
+            </div>
+            <!-- 转为 PNG -->
+            <div class="flex items-center justify-between">
+              <div>
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 PNG</label>
+                <p class="text-xs text-gray-500 dark:text-gray-400">无损格式，支持透明通道</p>
+              </div>
+              <button
+                type="button"
+                @click="togglePublicConvertFormat('png')"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                :class="publicConfig.convertToPng ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+              >
+                <span
+                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                  :class="publicConfig.convertToPng ? 'translate-x-6' : 'translate-x-1'"
+                />
+              </button>
             </div>
           </div>
 
@@ -503,86 +521,6 @@
             />
           </div>
 
-          <!-- 开启压缩 -->
-          <div class="space-y-3">
-            <div class="flex items-center justify-between">
-              <div>
-                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">开启压缩</label>
-                <p class="text-xs text-gray-500 dark:text-gray-400">压缩上传的图片（默认不转换格式）</p>
-              </div>
-              <button
-                type="button"
-                @click="privateConfig.enableCompression = !privateConfig.enableCompression"
-                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                :class="privateConfig.enableCompression ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
-              >
-                <span
-                  class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                  :class="privateConfig.enableCompression ? 'translate-x-6' : 'translate-x-1'"
-                />
-              </button>
-            </div>
-
-            <!-- 压缩选项 -->
-            <div v-if="privateConfig.enableCompression" class="ml-4 space-y-3">
-              <!-- 压缩质量 -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  压缩质量 ({{ privateConfig.compressionQuality }}%)
-                </label>
-                <input
-                  type="range"
-                  v-model.number="privateConfig.compressionQuality"
-                  min="10"
-                  max="100"
-                  step="5"
-                  class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
-                />
-              </div>
-
-              <!-- 转换格式选项组（互斥） -->
-              <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">转换格式（二选一，可都不选）</label>
-                <!-- 转为 WebP -->
-                <div class="flex items-center justify-between">
-                  <div>
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 WebP 格式（不可与转为 PNG 同时开启）</p>
-                  </div>
-                  <button
-                    type="button"
-                    @click="togglePrivateConvertFormat('webp')"
-                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                    :class="privateConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
-                  >
-                    <span
-                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                      :class="privateConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
-                    />
-                  </button>
-                </div>
-                <!-- 转为 PNG -->
-                <div class="flex items-center justify-between">
-                  <div>
-                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 PNG</label>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为 PNG 格式（不可与转为 WebP 同时开启）</p>
-                  </div>
-                  <button
-                    type="button"
-                    @click="togglePrivateConvertFormat('png')"
-                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
-                    :class="privateConfig.convertToPng ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
-                  >
-                    <span
-                      class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
-                      :class="privateConfig.convertToPng ? 'translate-x-6' : 'translate-x-1'"
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- 首页展示 -->
           <div class="flex items-center justify-between">
             <div>
@@ -601,6 +539,104 @@
               />
             </button>
           </div>
+
+          <!-- 开启压缩 -->
+         <div class="space-y-3">
+           <div class="flex items-center justify-between">
+             <div>
+               <label class="text-sm font-medium text-gray-700 dark:text-gray-300">开启压缩</label>
+               <p class="text-xs text-gray-500 dark:text-gray-400">压缩上传的图片，不影响格式转换</p>
+             </div>
+             <button
+               type="button"
+               @click="privateConfig.enableCompression = !privateConfig.enableCompression"
+               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+               :class="privateConfig.enableCompression ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+             >
+               <span
+                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                 :class="privateConfig.enableCompression ? 'translate-x-6' : 'translate-x-1'"
+               />
+             </button>
+           </div>
+
+           <!-- 压缩质量（开启压缩后显示） -->
+           <div v-if="privateConfig.enableCompression" class="ml-4">
+             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+               压缩质量 ({{ privateConfig.compressionQuality }}%)
+             </label>
+             <input
+               type="range"
+               v-model.number="privateConfig.compressionQuality"
+               min="10"
+               max="100"
+               step="5"
+               class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
+             />
+           </div>
+         </div>
+
+         <!-- 格式转换（独立于压缩） -->
+         <div class="space-y-2">
+           <div>
+             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">格式转换</label>
+             <p class="text-xs text-gray-500 dark:text-gray-400">将图片转换为指定格式（三选一，可都不选），独立于压缩功能</p>
+           </div>
+           <!-- 转为 WebP -->
+           <div class="flex items-center justify-between">
+             <div>
+               <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 WebP</label>
+               <p class="text-xs text-gray-500 dark:text-gray-400">体积更小，现代浏览器兼容</p>
+             </div>
+             <button
+               type="button"
+               @click="togglePrivateConvertFormat('webp')"
+               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+               :class="privateConfig.convertToWebp ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+             >
+               <span
+                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                 :class="privateConfig.convertToWebp ? 'translate-x-6' : 'translate-x-1'"
+               />
+             </button>
+           </div>
+           <!-- 转为 JPG -->
+           <div class="flex items-center justify-between">
+             <div>
+               <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 JPG</label>
+               <p class="text-xs text-gray-500 dark:text-gray-400">通用格式，兼容性最佳</p>
+             </div>
+             <button
+               type="button"
+               @click="togglePrivateConvertFormat('jpg')"
+               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+               :class="privateConfig.convertToJpg ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+             >
+               <span
+                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                 :class="privateConfig.convertToJpg ? 'translate-x-6' : 'translate-x-1'"
+               />
+             </button>
+           </div>
+           <!-- 转为 PNG -->
+           <div class="flex items-center justify-between">
+             <div>
+               <label class="text-sm font-medium text-gray-700 dark:text-gray-300">转为 PNG</label>
+               <p class="text-xs text-gray-500 dark:text-gray-400">无损格式，支持透明通道</p>
+             </div>
+             <button
+               type="button"
+               @click="togglePrivateConvertFormat('png')"
+               class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+               :class="privateConfig.convertToPng ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'"
+             >
+               <span
+                 class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"
+                 :class="privateConfig.convertToPng ? 'translate-x-6' : 'translate-x-1'"
+               />
+             </button>
+           </div>
+         </div>
 
           <div class="pt-4">
             <button type="submit" class="btn-primary" :disabled="saving">
@@ -1001,6 +1037,7 @@ const publicConfig = reactive({
   compressionQuality: 80,
   convertToWebp: false,
   convertToPng: false,
+  convertToJpg: false,
   rateLimit: 10,
   allowConcurrent: false,
   contentSafety: { ...defaultContentSafetyConfig }
@@ -1013,6 +1050,7 @@ const privateConfig = reactive({
   compressionQuality: 80,
   convertToWebp: false,
   convertToPng: false,
+  convertToJpg: false,
   showOnHomepage: false
 })
 
@@ -1122,25 +1160,49 @@ async function toggleContentSafety() {
   }
 }
 
-// 互斥切换公共配置格式转换
+// 互斥切换公共配置格式转换（三选一）
 function togglePublicConvertFormat(format) {
   if (format === 'webp') {
     publicConfig.convertToWebp = !publicConfig.convertToWebp
-    if (publicConfig.convertToWebp) publicConfig.convertToPng = false
+    if (publicConfig.convertToWebp) {
+      publicConfig.convertToPng = false
+      publicConfig.convertToJpg = false
+    }
+  } else if (format === 'jpg') {
+    publicConfig.convertToJpg = !publicConfig.convertToJpg
+    if (publicConfig.convertToJpg) {
+      publicConfig.convertToWebp = false
+      publicConfig.convertToPng = false
+    }
   } else if (format === 'png') {
     publicConfig.convertToPng = !publicConfig.convertToPng
-    if (publicConfig.convertToPng) publicConfig.convertToWebp = false
+    if (publicConfig.convertToPng) {
+      publicConfig.convertToWebp = false
+      publicConfig.convertToJpg = false
+    }
   }
 }
 
-// 互斥切换私有配置格式转换
+// 互斥切换私有配置格式转换（三选一）
 function togglePrivateConvertFormat(format) {
   if (format === 'webp') {
     privateConfig.convertToWebp = !privateConfig.convertToWebp
-    if (privateConfig.convertToWebp) privateConfig.convertToPng = false
+    if (privateConfig.convertToWebp) {
+      privateConfig.convertToPng = false
+      privateConfig.convertToJpg = false
+    }
+  } else if (format === 'jpg') {
+    privateConfig.convertToJpg = !privateConfig.convertToJpg
+    if (privateConfig.convertToJpg) {
+      privateConfig.convertToWebp = false
+      privateConfig.convertToPng = false
+    }
   } else if (format === 'png') {
     privateConfig.convertToPng = !privateConfig.convertToPng
-    if (privateConfig.convertToPng) privateConfig.convertToWebp = false
+    if (privateConfig.convertToPng) {
+      privateConfig.convertToWebp = false
+      privateConfig.convertToJpg = false
+    }
   }
 }
 
@@ -1156,6 +1218,7 @@ async function savePublicConfig() {
       compressionQuality: publicConfig.compressionQuality,
       convertToWebp: publicConfig.convertToWebp,
       convertToPng: publicConfig.convertToPng,
+      convertToJpg: publicConfig.convertToJpg,
       rateLimit: publicConfig.rateLimit,
       allowConcurrent: publicConfig.allowConcurrent,
       contentSafety: publicConfig.contentSafety
@@ -1183,6 +1246,7 @@ async function savePrivateConfig() {
       compressionQuality: privateConfig.compressionQuality,
       convertToWebp: privateConfig.convertToWebp,
       convertToPng: privateConfig.convertToPng,
+      convertToJpg: privateConfig.convertToJpg,
       showOnHomepage: privateConfig.showOnHomepage
     })
 
